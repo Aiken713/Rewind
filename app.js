@@ -22,7 +22,7 @@ let current = 'disposable', facing = 'environment', stream = null, lastBlob = nu
 /* ===== Start screen: swipeable postcards ===== */
 const deck = $('cards'), pcs = [...deck.querySelectorAll('.pc')];
 const dots = [...document.querySelectorAll('#dots i')], nextBtn = $('next');
-const REST = [-1.6, 1.2, -0.8];          // each postcard rests at a slight angle
+const REST = [-1.6, 1.2, -0.8, 1.4];          // each postcard rests at a slight angle
 let idx = 0, dragging = false, startX = 0, dx = 0;
 
 function layout(){
@@ -236,7 +236,7 @@ $('file').onchange = e => {
 /* ===== Save + retake ===== */
 $('save').onclick = async () => {
   if (!lastBlob) return;
-  const file = new File([lastBlob], `flashback-${Date.now()}.jpg`, {type:'image/jpeg'});
+  const file = new File([lastBlob], `rewind-${Date.now()}.jpg`, {type:'image/jpeg'});
   if (navigator.canShare && navigator.canShare({files:[file]})){
     try{ await navigator.share({files:[file]}); return; }
     catch(e){ if (e.name === 'AbortError') return; }
@@ -371,7 +371,7 @@ $('again').onclick = () => { clearSong(); retake(); };
 
 
 // Version stamp so you can see which files your phone loaded
-$('ver').textContent += ' · script v1.10';
+$('ver').textContent += ' · script v2.1';
 
 
 /* ===== Button press animation (works on phones) + shutter flash ===== */
