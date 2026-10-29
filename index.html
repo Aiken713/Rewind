@@ -9,55 +9,62 @@
 <title>Flashback</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=VT323&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=3">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:opsz,wght@9..144,700&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=9">
 </head>
 <body>
 
-<!-- Start screen: shown the first time someone visits -->
+<!-- Start screen: swipeable postcards, shown on the first visit -->
 <section id="welcome" aria-label="Welcome">
-  <div class="archwrap" aria-hidden="true"><div class="arch"></div></div>
-  <div class="cards" id="cards">
-    <div class="card">
-      <div class="badge">📼</div>
+  <div class="brand">Flashback</div>
+  <div class="deck" id="cards">
+    <article class="pc"><div class="in">
+      <div class="top"><span class="lab">Postcard 1 of 3</span><div class="stamp"><i></i></div></div>
       <h1>Free retro cameras</h1>
-      <p>Take photos that look like old film, disposable cameras, and VHS tapes. Every camera is free. No subscription, ever.</p>
-    </div>
-    <div class="card">
-      <div class="badge">🌐</div>
+      <p>Take photos that look like old film, disposable cameras, and VHS tapes. Every camera is free, with no subscription, ever.</p>
+      <div class="lines"><b></b><b></b><b></b></div>
+    </div></article>
+    <article class="pc"><div class="in">
+      <div class="top"><span class="lab">Postcard 2 of 3</span><div class="stamp"><i></i></div></div>
       <h1>This is a website</h1>
-      <p>There's nothing to download. Your photos stay on your phone, and you save them to your camera roll. Add this page to your home screen to open it like an app.</p>
-    </div>
-    <div class="card">
-      <div class="badge">🤝</div>
+      <p>There's nothing to download. Your photos stay on your phone and save to your camera roll. Add this page to your home screen to open it like an app.</p>
+      <div class="lines"><b></b><b></b><b></b></div>
+    </div></article>
+    <article class="pc"><div class="in">
+      <div class="top"><span class="lab">Postcard 3 of 3</span><div class="stamp"><i></i></div></div>
       <h1>House rules</h1>
-      <ul>
+      <ol>
         <li>Be kind.</li>
         <li>Ask before you photograph someone.</li>
         <li>Keep it fun and keep it friendly.</li>
-      </ul>
-    </div>
+      </ol>
+      <div class="lines"><b></b><b></b></div>
+    </div></article>
   </div>
+  <p class="swipehint" id="hintswipe">Swipe left for the next postcard</p>
   <div class="dots" id="dots"><i class="on"></i><i></i><i></i></div>
-  <button class="wbtn b3d" id="next">Next</button>
+  <button class="wbtn" id="next">Next</button>
 </section>
 
 <!-- Camera -->
 <main id="app">
-  <header><h2>Flashback</h2><span>Free retro cameras</span></header>
+  <header><h2>Flashback</h2><span id="ver">Free retro cameras · page v1.8</span></header>
   <div class="vf">
     <div class="frame" id="frame">
       <video id="video" playsinline muted autoplay></video>
       <div class="vig"></div>
-      <div class="tag"><b>●</b> <span id="lookName">Disposable</span></div>
+      <div class="tag"><i class="rec"></i><span id="lookName">Disposable</span></div>
+      <div class="flash" id="flash"></div>
       <div id="msg" hidden></div>
     </div>
   </div>
-  <div class="looks" id="looks" role="group" aria-label="Choose a camera"></div>
-  <div class="row">
-    <label class="side b3d" title="Choose a photo" aria-label="Choose a photo">🖼️<input id="file" type="file" accept="image/*" hidden></label>
-    <button class="shutter" id="shutter" aria-label="Take photo"></button>
-    <button class="side b3d" id="flip" aria-label="Flip camera">🔄</button>
+  <div class="body">
+    <div class="looks" id="looks" role="group" aria-label="Choose a camera"></div>
+    <div class="row">
+      <label class="side" title="Choose a photo" aria-label="Choose a photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="M21 16l-5-5-8 9"/></svg><input id="file" type="file" accept="image/*" hidden></label>
+      <button class="shutter" id="shutter" aria-label="Take photo"></button>
+      <button class="side" id="flip" aria-label="Flip camera"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.5-4.5L4 8"/><path d="M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.5 4.5L20 16"/><path d="M20 20v-4h-4"/></svg></button>
+    </div>
   </div>
 </main>
 
@@ -65,18 +72,18 @@
 <section id="result" hidden>
   <div class="pic"><img id="out" alt="Your photo"></div>
   <div class="songbar">
-    <button class="addsong b3d" id="addSong">🎵 Add a song</button>
+    <button class="addsong" id="addSong"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg><span>Add a song</span></button>
     <div class="songchip" id="songChip" hidden>
       <img id="songArt" alt="">
       <div class="meta"><b id="songTitle"></b><span id="songArtist"></span></div>
-      <button class="mini b3d" id="songPlay" aria-label="Play preview">▶</button>
-      <button class="mini b3d" id="songRemove" aria-label="Remove song">✕</button>
+      <button class="mini" id="songPlay" aria-label="Play preview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor" stroke="none"/></svg></button>
+      <button class="mini" id="songRemove" aria-label="Remove song"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
   </div>
   <p class="hint">On iPhone, pick "Save Image" in the menu to put it in your camera roll.</p>
   <div class="btns">
-    <button class="again b3d" id="again">Retake</button>
-    <button class="save b3d" id="save">Save to camera roll</button>
+    <button class="again" id="again">Retake</button>
+    <button class="save" id="save">Save to camera roll</button>
   </div>
 </section>
 
@@ -86,10 +93,10 @@
     <input id="q" type="search" placeholder="Search a song or artist" autocomplete="off" aria-label="Search for a song">
     <ul id="results"></ul>
     <p class="credit" id="credit">Song info and 30-second previews from Apple Music or Deezer.</p>
-    <button class="closebtn b3d" id="closeSheet">Close</button>
+    <button class="closebtn" id="closeSheet">Close</button>
   </div>
 </section>
 
-<script src="app.js?v=3"></script>
+<script src="app.js?v=9"></script>
 </body>
 </html>

@@ -4,39 +4,75 @@ const LOOKS = {
     contrast:1.15, bright:6, sat:1.25, tint:[14,4,-10], lift:8, grain:34, vig:.35, leak:true, stamp:'#FF9F1C'},
   faded:{name:'Faded Film', css:'contrast(.9) saturate(.75) brightness(1.08) hue-rotate(-8deg)',
     contrast:.88, bright:12, sat:.7, tint:[-4,6,8], lift:26, grain:22, vig:.2},
+  classic:{name:'Classic M', css:'contrast(1.05) saturate(.88) sepia(.12) brightness(1.04)',
+    contrast:1.06, bright:4, sat:.88, tint:[6,3,-4], lift:14, grain:12, vig:.22},
   polaroid:{name:'Polaroid', css:'sepia(.2) contrast(1.05) saturate(1.1) brightness(1.1)',
     contrast:1.05, bright:12, sat:1.05, tint:[12,6,-6], lift:18, grain:16, vig:.25, frame:true},
   vhs:{name:'VHS Tape', css:'contrast(1.2) saturate(1.4) blur(.4px)',
-    contrast:1.2, bright:0, sat:1.35, tint:[-6,0,10], lift:14, grain:42, vig:.3, vhs:true, shift:6}
+    contrast:1.2, bright:0, sat:1.35, tint:[-6,0,10], lift:14, grain:42, vig:.3, vhs:true, shift:6},
+  night:{name:'Night Owl', css:'brightness(1.2) contrast(1.15) saturate(1.1)',
+    contrast:1.12, bright:-2, gamma:.82, sat:1.1, tint:[4,0,2], lift:5, grain:26, vig:.45,
+    glow:true, stamp:'#FF9F1C', vert:true}
 };
 
 const $ = id => document.getElementById(id);
 const video = $('video'), frame = $('frame'), msg = $('msg');
 let current = 'disposable', facing = 'environment', stream = null, lastBlob = null;
 
-/* ===== Start screen ===== */
-const cards = $('cards'), dots = [...document.querySelectorAll('#dots i')], nextBtn = $('next');
-function cardIndex(){ return Math.round(cards.scrollLeft / cards.clientWidth); }
-function syncWelcome(){
-  const i = cardIndex();
-  dots.forEach((d,n) => d.classList.toggle('on', n === i));
-  nextBtn.textContent = i === dots.length - 1 ? 'Start shooting' : 'Next';
+/* ===== Start screen: swipeable postcards ===== */
+const deck = $('cards'), pcs = [...deck.querySelectorAll('.pc')];
+const dots = [...document.querySelectorAll('#dots i')], nextBtn = $('next');
+const REST = [-1.6, 1.2, -0.8];          // each postcard rests at a slight angle
+let idx = 0, dragging = false, startX = 0, dx = 0;
+
+function layout(){
+  pcs.forEach((c, i) => {
+    const k = i - idx;
+    c.style.zIndex = 10 - k;
+    c.style.pointerEvents = k === 0 ? 'auto' : 'none';
+    if (k < 0){ c.style.transform = 'translateX(-125%) rotate(-16deg)'; c.style.opacity = 0; }
+    else {
+      const s = Math.min(k, 3);
+      c.style.transform = `translateY(${s*14}px) scale(${1 - s*.05}) rotate(${REST[i]}deg)`;
+      c.style.opacity = k > 2 ? 0 : 1;
+    }
+  });
+  dots.forEach((d, n) => d.classList.toggle('on', n === idx));
+  nextBtn.textContent = idx === pcs.length - 1 ? 'Start shooting' : 'Next';
+  $('hintswipe').style.opacity = idx === 0 ? 1 : 0;
 }
-cards.addEventListener('scroll', syncWelcome);
-nextBtn.onclick = () => {
-  const i = cardIndex();
-  if (i < dots.length - 1) cards.scrollTo({left:(i+1)*cards.clientWidth, behavior:'smooth'});
-  else { try{ localStorage.setItem('flashback-seen','1'); }catch(e){} enterApp(); }
-};
+function advance(){ if (idx < pcs.length - 1){ idx++; layout(); } else finishWelcome(); }
+function back(){ if (idx > 0){ idx--; layout(); } }
+function finishWelcome(){ try{ localStorage.setItem('flashback-seen','1'); }catch(e){} enterApp(); }
+nextBtn.onclick = advance;
+
+deck.addEventListener('pointerdown', e => {
+  if (!e.target.closest('.pc')) return;
+  dragging = true; startX = e.clientX; dx = 0;
+  deck.setPointerCapture(e.pointerId); pcs[idx].classList.add('drag');
+});
+deck.addEventListener('pointermove', e => {
+  if (!dragging) return;
+  dx = e.clientX - startX;
+  pcs[idx].style.transform = `translateX(${dx}px) rotate(${REST[idx] + dx/18}deg)`;
+});
+function endDrag(){
+  if (!dragging) return;
+  dragging = false; pcs[idx].classList.remove('drag');
+  if (dx < -70) advance(); else if (dx > 70 && idx > 0) back(); else layout();
+}
+deck.addEventListener('pointerup', endDrag);
+deck.addEventListener('pointercancel', endDrag);
+
 function enterApp(){ $('welcome').hidden = true; startCam(); }
 let seen = false;
 try{ seen = localStorage.getItem('flashback-seen') === '1'; }catch(e){}
-if (seen) enterApp();
+if (seen) enterApp(); else layout();
 
 /* ===== Look picker ===== */
 Object.entries(LOOKS).forEach(([key, l]) => {
   const b = document.createElement('button');
-  b.className = 'chip b3d'; b.textContent = l.name; b.dataset.key = key;
+  b.className = 'chip'; b.textContent = l.name; b.dataset.key = key;
   b.setAttribute('aria-pressed', key === current);
   b.onclick = () => setLook(key);
   $('looks').appendChild(b);
@@ -90,12 +126,14 @@ function render(src, sw, sh, mirror){
   // colors + grain, pixel by pixel
   const img = ctx.getImageData(0,0,w,h), d = img.data;
   const copy = L.shift ? new Uint8ClampedArray(d) : null;
+  const gt = L.gamma ? Array.from({length:256}, (_, i) => 255*Math.pow(i/255, L.gamma)) : null;
   for (let i = 0; i < d.length; i += 4){
     let r = d[i], g = d[i+1], b = d[i+2];
     if (copy){ r = copy[Math.min(i + 4*L.shift, d.length-4)]; }   // red channel slips sideways (VHS)
     r = (r-128)*L.contrast + 128 + L.bright;
     g = (g-128)*L.contrast + 128 + L.bright;
     b = (b-128)*L.contrast + 128 + L.bright;
+    if (gt){ r = gt[Math.min(255,Math.max(0,r|0))]; g = gt[Math.min(255,Math.max(0,g|0))]; b = gt[Math.min(255,Math.max(0,b|0))]; }
     const gray = .299*r + .587*g + .114*b;
     r = gray + (r-gray)*L.sat; g = gray + (g-gray)*L.sat; b = gray + (b-gray)*L.sat;
     r += L.tint[0]; g += L.tint[1]; b += L.tint[2];
@@ -111,6 +149,25 @@ function render(src, sw, sh, mirror){
   v.addColorStop(0,'rgba(0,0,0,0)'); v.addColorStop(1,`rgba(0,0,0,${L.vig})`);
   ctx.fillStyle = v; ctx.fillRect(0,0,w,h);
 
+  // soft glow around bright lights
+  if (L.glow){
+    [8, 20].forEach((f, n) => {
+      const gw = Math.max(8, Math.round(w/f)), gh = Math.max(8, Math.round(h/f));
+      const s = document.createElement('canvas'); s.width = gw; s.height = gh;
+      const sc = s.getContext('2d'); sc.drawImage(c, 0, 0, gw, gh);
+      const im = sc.getImageData(0, 0, gw, gh), p = im.data;
+      for (let i = 0; i < p.length; i += 4){
+        const lum = .299*p[i] + .587*p[i+1] + .114*p[i+2];
+        const k = lum > 150 ? (lum-150)/105 : 0;                   // keep only the bright parts
+        p[i] *= k; p[i+1] *= k; p[i+2] *= k;
+      }
+      sc.putImageData(im, 0, 0);
+      ctx.globalCompositeOperation = 'screen'; ctx.globalAlpha = n ? .55 : .8;
+      ctx.imageSmoothingEnabled = true; ctx.drawImage(s, 0, 0, w, h);   // enlarging blurs it
+    });
+    ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+  }
+
   // light leak
   if (L.leak){
     const g = ctx.createLinearGradient(w,0,w*.55,h*.3);
@@ -125,7 +182,9 @@ function render(src, sw, sh, mirror){
     for (let y = 0; y < h; y += 4) ctx.fillRect(0,y,w,1.5);
     ctx.font = `${Math.round(h*.06)}px VT323, monospace`;
     ctx.fillStyle = '#fff'; ctx.shadowColor = 'rgba(0,0,0,.7)'; ctx.shadowBlur = 4;
-    ctx.textAlign = 'left'; ctx.fillText('▶ PLAY', w*.05, h*.09);
+    const fs = Math.round(h*.06);
+    ctx.beginPath(); ctx.moveTo(w*.05, h*.09 - fs*.7); ctx.lineTo(w*.05, h*.09); ctx.lineTo(w*.05 + fs*.6, h*.09 - fs*.35); ctx.closePath(); ctx.fill();
+    ctx.textAlign = 'left'; ctx.fillText('PLAY', w*.05 + fs*.9, h*.09);
     ctx.fillText(stampText().replace(/'/,'') , w*.05, h*.95);
     ctx.shadowBlur = 0;
   }
@@ -134,7 +193,10 @@ function render(src, sw, sh, mirror){
   if (L.stamp){
     ctx.font = `${Math.round(h*.05)}px VT323, monospace`;
     ctx.fillStyle = L.stamp; ctx.shadowColor = 'rgba(255,120,0,.8)'; ctx.shadowBlur = 6;
-    ctx.textAlign = 'right'; ctx.fillText(stampText(), w*.95, h*.95);
+    if (L.vert){
+      ctx.save(); ctx.translate(w*.08, h*.78); ctx.rotate(Math.PI/2);
+      ctx.textAlign = 'left'; ctx.fillText(stampText(), 0, 0); ctx.restore();
+    } else { ctx.textAlign = 'right'; ctx.fillText(stampText(), w*.95, h*.95); }
     ctx.shadowBlur = 0;
   }
 
@@ -190,6 +252,8 @@ $('again').onclick = () => { $('result').hidden = true; };
    Later (Supabase), save those fields with the post. We only store the info and
    links, never the audio itself. */
 let song = null, audio = null, searchTimer = null;
+const ICON_PLAY = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor" stroke="none"/></svg>`;
+const ICON_PAUSE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor" stroke="none"/><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor" stroke="none"/></svg>`;
 
 function jsonp(url){                       // Apple's search works from any website this way
   return new Promise((resolve, reject) => {
@@ -285,7 +349,7 @@ function pickSong(item){
 
 function stopSong(){
   if (audio){ audio.pause(); audio = null; }
-  $('songPlay').textContent = '▶';
+  $('songPlay').innerHTML = ICON_PLAY;
 }
 $('songPlay').onclick = () => {
   if (!song) return;
@@ -293,7 +357,7 @@ $('songPlay').onclick = () => {
   audio = new Audio(song.preview);
   audio.onended = stopSong;
   audio.play().catch(stopSong);
-  $('songPlay').textContent = '❚❚';
+  $('songPlay').innerHTML = ICON_PAUSE;
 };
 function clearSong(){
   stopSong(); song = null;
@@ -304,3 +368,23 @@ $('songRemove').onclick = clearSong;
 // Retake also clears the song
 const retake = $('again').onclick;
 $('again').onclick = () => { clearSong(); retake(); };
+
+
+// Version stamp so you can see which files your phone loaded
+$('ver').textContent += ' · script v1.8';
+
+
+/* ===== Button press animation (works on phones) + shutter flash ===== */
+document.addEventListener('pointerdown', e => {
+  const b = e.target.closest('button, .side');
+  if (b){ b.classList.add('down'); if (navigator.vibrate) navigator.vibrate(8); }
+});
+const release = () => document.querySelectorAll('.down').forEach(b => b.classList.remove('down'));
+document.addEventListener('pointerup', release);
+document.addEventListener('pointercancel', release);
+
+const shoot = $('shutter').onclick;
+$('shutter').onclick = () => {
+  const f = $('flash'); f.classList.remove('go'); void f.offsetWidth; f.classList.add('go');
+  shoot();
+};
