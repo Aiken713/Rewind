@@ -204,12 +204,37 @@ function jsonp(url){                       // Apple's search works from any webs
   });
 }
 
+const ITUNES = 'https://itunes.apple.com/search?media=music&entity=song&limit=8&term=';
+const fromItunes = d => d.results.filter(r => r.previewUrl).map(r => ({
+  id: r.trackId, title: r.trackName, artist: r.artistName, art: r.artworkUrl100,
+  preview: r.previewUrl, link: r.trackViewUrl, source: 'Apple Music'}));
+
+const ROUTES = [
+  async term => {                                   // 1) Apple, normal request
+    const r = await fetch(ITUNES + encodeURIComponent(term));
+    if (!r.ok) throw new Error('apple ' + r.status);
+    return fromItunes(await r.json());
+  },
+  async term => fromItunes(await jsonp(ITUNES + encodeURIComponent(term))),   // 2) Apple, script trick
+  async term => {                                   // 3) Deezer as a backup
+    const d = await jsonp('https://api.deezer.com/search?limit=8&output=jsonp&q=' + encodeURIComponent(term));
+    return (d.data || []).filter(x => x.preview).map(x => ({
+      id: x.id, title: x.title, artist: x.artist.name, art: x.album.cover_medium,
+      preview: x.preview, link: x.link, source: 'Deezer'}));
+  }
+];
+
 async function searchSongs(term){
-  const data = await jsonp('https://itunes.apple.com/search?media=music&entity=song&limit=8&term=' + encodeURIComponent(term));
-  return data.results.filter(r => r.previewUrl).map(r => ({
-    id: r.trackId, title: r.trackName, artist: r.artistName,
-    art: r.artworkUrl100, preview: r.previewUrl, link: r.trackViewUrl
-  }));
+  let lastErr = null, gotAnswer = false;
+  for (const route of ROUTES){
+    try{
+      const list = await route(term);
+      gotAnswer = true;
+      if (list.length) return list;
+    }catch(e){ lastErr = e; console.warn('Song search route failed:', e); }
+  }
+  if (gotAnswer) return [];
+  throw lastErr || new Error('unknown');
 }
 
 function note(text){
@@ -219,6 +244,7 @@ function note(text){
 
 function showResults(list){
   if (!list.length) return note('No songs found. Try another search.');
+  $('credit').textContent = 'Song info and 30-second previews from ' + list[0].source + '.';
   $('results').replaceChildren(...list.map(item => {
     const li = document.createElement('li'), b = document.createElement('button');
     const img = document.createElement('img'); img.src = item.art; img.alt = '';
@@ -238,7 +264,7 @@ $('q').addEventListener('input', () => {
   note('Searching…');
   searchTimer = setTimeout(async () => {
     try{ const list = await searchSongs(term); if (term === $('q').value.trim()) showResults(list); }
-    catch(e){ note('Could not search right now. Check your connection and try again.'); }
+    catch(e){ note('Could not search right now (' + (e.message || 'error') + '). Check your connection and try again.'); }
   }, 350);
 });
 
