@@ -4,8 +4,8 @@ const LOOKS = {
     contrast:1.15, bright:6, sat:1.25, tint:[14,4,-10], lift:8, grain:34, vig:.35, leak:true, stamp:'#FF9F1C'},
   faded:{name:'Faded Film', css:'contrast(.9) saturate(.75) brightness(1.08) hue-rotate(-8deg)',
     contrast:.88, bright:12, sat:.7, tint:[-4,6,8], lift:26, grain:22, vig:.2},
-  classic:{name:'Classic M', css:'contrast(1.05) saturate(.88) sepia(.12) brightness(1.04)',
-    contrast:1.06, bright:4, sat:.88, tint:[6,3,-4], lift:14, grain:12, vig:.22},
+  classic:{name:'Classic M', css:'contrast(1.05) saturate(.95) sepia(.22) brightness(1.04)',
+    contrast:1.06, bright:4, sat:.95, tint:[17,8,-12], lift:14, grain:12, vig:.22},
   polaroid:{name:'Polaroid', css:'sepia(.2) contrast(1.05) saturate(1.1) brightness(1.1)',
     contrast:1.05, bright:12, sat:1.05, tint:[12,6,-6], lift:18, grain:16, vig:.25, frame:true},
   vhs:{name:'VHS Tape', css:'contrast(1.2) saturate(1.4) blur(.4px)',
@@ -371,7 +371,7 @@ $('again').onclick = () => { clearSong(); retake(); };
 
 
 // Version stamp so you can see which files your phone loaded
-$('ver').textContent += ' · script v1.8';
+$('ver').textContent += ' · script v1.9';
 
 
 /* ===== Button press animation (works on phones) + shutter flash ===== */
