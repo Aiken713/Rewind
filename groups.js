@@ -69,6 +69,15 @@
   async function openRoll(g){
     current = g; say('rollName', g.name); say('rollCode', g.code);
     $('grid').replaceChildren(); $('rollEmpty').hidden = true; open('rollSheet');
+    $('members').replaceChildren();
+    sb.rpc('group_roster', { p_group: g.id }).then(({ data }) => {
+      if (!data) return;
+      const label = document.createElement('b'); label.className = 'mlabel'; label.textContent = 'Members (' + data.length + ')';
+      $('members').replaceChildren(label, ...data.map(u => {
+        const s = document.createElement('span'); s.className = 'mchip'; s.append(u.nickname);
+        const t = document.createElement('i'); t.textContent = '#' + u.tag + (u.mine ? ' (you)' : ''); s.appendChild(t); return s;
+      }));
+    });
     const { data, error } = await sb.rpc('group_feed', { p_group: g.id });
     if (error) return toast(nice(error));
     const rows = data || []; $('rollEmpty').hidden = rows.length > 0;
@@ -78,7 +87,8 @@
     $('grid').replaceChildren(...rows.map(r => {
       const b = document.createElement('button'), im = document.createElement('img');
       b.className = 'tile'; b.setAttribute('aria-label', 'Photo by ' + r.nickname);
-      im.alt = ''; im.loading = 'lazy'; im.src = map[r.thumb_path] || ''; b.appendChild(im);
+      im.alt = ''; im.loading = 'lazy'; im.src = map[r.thumb_path] || '';
+      const w = document.createElement('span'); w.className = 'who'; w.textContent = r.nickname || '?'; b.append(im, w);
       b.onclick = () => openPhoto(r); return b;
     }));
   }
@@ -89,6 +99,13 @@
       $('leaveBtn').dataset.sure = '1'; $('leaveBtn').textContent = 'Tap again to leave'; sure = setTimeout(resetLeave, 4000); return;
     }
     resetLeave();
+    await loadGroups();
+    const mine = groups.find(x => x.id === current.id);
+    if (mine && Number(mine.members) === 1){            // last one out: delete the photo files too
+      const { data: paths } = await sb.rpc('group_paths', { p_group: current.id });
+      const all = paths || [];
+      for (let i = 0; i < all.length; i += 100) await sb.storage.from(B).remove(all.slice(i, i + 100));
+    }
     const { error } = await sb.rpc('leave_group', { p_group: current.id });
     if (error) return toast('Could not leave.');
     shut('rollSheet'); toast('You left ' + current.name); loadGroups();
@@ -99,7 +116,7 @@
   let viewAudio = null;
   const stopView = () => { if (viewAudio){ viewAudio.pause(); viewAudio = null; } };
   async function openPhoto(r){
-    $('viewImg').removeAttribute('src');
+    $('viewImg').removeAttribute('src'); say('viewName', r.nickname || '');
     say('viewMeta', r.nickname + '#' + r.tag + ' · ' + new Date(r.created_at).toLocaleDateString(undefined, { month:'short', day:'numeric' }));
     $('viewSong').replaceChildren(); $('delPost').hidden = !r.mine; open('viewSheet');
     if (r.song_title){
@@ -170,6 +187,32 @@
     }catch(e){ console.warn(e); say('postSub', nice(e)); }
     finally{ posting = false; }
   }
+
+  /* ----- delete my account ----- */
+  async function removeAll(list){
+    for (let i = 0; i < list.length; i += 100) await sb.storage.from(B).remove(list.slice(i, i + 100));
+  }
+  $('delAcct').onclick = () => { say('delMsg', ''); shut('recSheet'); open('delSheet'); };
+  $('delNo').onclick = () => shut('delSheet');
+  $('delYes').onclick = async () => {
+    const btn = $('delYes'); btn.disabled = true; say('delMsg', 'Deleting…');
+    try{
+      await loadGroups();
+      for (const g of groups){                              // groups where I am the last member: clear every file
+        if (Number(g.members) === 1){ const { data } = await sb.rpc('group_paths', { p_group: g.id }); await removeAll(data || []); }
+      }
+      const { data: mine } = await sb.rpc('my_file_paths'); await removeAll(mine || []);   // my photos in other groups
+      const { error } = await sb.rpc('delete_account'); if (error) throw error;
+      try{
+        await sb.auth.signOut({ scope: 'local' });
+      }catch(e){}
+      try{
+        Object.keys(localStorage).filter(k => k.startsWith('sb-') || k.startsWith('flashback-')).forEach(k => localStorage.removeItem(k));
+        sessionStorage.clear();
+      }catch(e){}
+      location.reload();
+    }catch(e){ console.warn(e); say('delMsg', 'Could not delete your account. Try again.'); btn.disabled = false; }
+  };
 
   /* ----- invite links and start up ----- */
   const m = location.hash.match(/join=([A-Za-z0-9]{6})/);
