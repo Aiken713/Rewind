@@ -173,22 +173,22 @@
   $('again').addEventListener('click', () => { $('caption').value = ''; });   // a new photo starts with a blank caption
   async function doPost(g){
     if (posting || !lastBlob) return;
-    posting = true; say('postSub', 'Posting…');
+    posting = true; say('postSub', 'Posting…'); let step = 'preparing the photo';
     try{
       let img = await shrink(lastBlob, 960, .68); if (img.size > 900000) img = await shrink(lastBlob, 800, .55);
       const thumb = await shrink(lastBlob, 360, .7);
-      const { data: s } = await sb.auth.getSession();
+      step = 'checking your login'; const { data: s } = await sb.auth.getSession();
       const base = g.id + '/' + s.session.user.id + '/' + crypto.randomUUID(), p1 = base + '.jpg', p2 = base + '_t.jpg';
-      let r = await sb.storage.from(B).upload(p1, img, { contentType: 'image/jpeg' }); if (r.error) throw r.error;
-      r = await sb.storage.from(B).upload(p2, thumb, { contentType: 'image/jpeg' });
+      step = 'uploading the photo'; let r = await sb.storage.from(B).upload(p1, img, { contentType: 'image/jpeg' }); if (r.error) throw r.error;
+      step = 'uploading the thumbnail'; r = await sb.storage.from(B).upload(p2, thumb, { contentType: 'image/jpeg' });
       if (r.error){ await sb.storage.from(B).remove([p1]); throw r.error; }
-      const sg = song || {};
+      step = 'saving the post'; const sg = song || {};
       const { error } = await sb.rpc('create_post', { p_group: g.id, p_image: p1, p_thumb: p2, p_title: sg.title || null,
         p_artist: sg.artist || null, p_art: sg.art || null, p_preview: sg.preview || null, p_link: sg.link || null,
         p_caption: $('caption').value.trim() || null });
       if (error){ await sb.storage.from(B).remove([p1, p2]); throw error; }
       shut('postSheet'); toast('Posted to ' + g.name); $('again').click();
-    }catch(e){ console.warn(e); say('postSub', nice(e)); }
+    }catch(e){ console.warn(e); say('postSub', nice(e) + ' [' + step + ': ' + ((e && e.message) || e) + ']'); }
     finally{ posting = false; }
   }
 
