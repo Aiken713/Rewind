@@ -18,7 +18,7 @@
     return btoa(String.fromCharCode(...b)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
   }
   let toastTimer;
-  function toast(t){ const el = $('toast'); el.textContent = t; el.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { el.hidden = true; }, 3500); }
+  function toast(t, ms = 3500){ const el = $('toast'); el.textContent = t; el.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { el.hidden = true; }, ms); }
   function refresh(){
     if (profile){ $('acct').textContent = profile.nickname + '#' + profile.tag; $('acct').hidden = false; }
     $('saveBanner').hidden = !(profile && !get(SAVED));
@@ -130,6 +130,6 @@
       }
       await loadProfile();
       if (!profile) afterWelcome(() => open('nameSheet'));
-    }catch(e){ console.warn('Accounts not available:', e); }
+    }catch(e){ console.warn('Accounts not available:', e); toast('Accounts error: ' + (e.message || e), 12000); }
   })();
 })();
