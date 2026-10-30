@@ -8,6 +8,7 @@
   const sb = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_KEY);
   const RK = 'flashback-rk', SAVED = 'flashback-saved', ASKED = 'flashback-asked';
   let profile = null;
+  window.rewind = { sb, toast: (t, ms) => toast(t, ms), getProfile: () => profile };
 
   const get = k => { try{ return localStorage.getItem(k); }catch(e){ return null; } };
   const put = (k, v) => { try{ v === null ? localStorage.removeItem(k) : localStorage.setItem(k, v); }catch(e){} };
@@ -20,7 +21,7 @@
   let toastTimer;
   function toast(t, ms = 3500){ const el = $('toast'); el.textContent = t; el.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { el.hidden = true; }, ms); }
   function refresh(){
-    if (profile){ $('acct').textContent = profile.nickname + '#' + profile.tag; $('acct').hidden = false; }
+    if (profile){ $('acct').textContent = profile.nickname + '#' + profile.tag; $('acct').hidden = false; document.dispatchEvent(new Event('rewind-profile')); }
     $('saveBanner').hidden = !(profile && !get(SAVED));
   }
 

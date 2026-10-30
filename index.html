@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:opsz,wght@9..144,700&family=VT323&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=14">
+<link rel="stylesheet" href="style.css?v=15">
 </head>
 <body>
 
@@ -54,7 +54,7 @@
 
 <!-- Camera -->
 <main id="app">
-  <header><h2>Rewind</h2><button class="acct" id="acct" hidden></button><span id="ver">Free retro cameras · page v2.2</span></header>
+  <header><h2>Rewind</h2><div class="hr"><button class="acct" id="grpBtn" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.6"/><path d="M16 14.2c3 .1 5 2.3 5 5.8"/></svg> Groups</button><button class="acct" id="acct" hidden></button></div><span id="ver">Free retro cameras · page v3.0</span></header>
   <button class="banner" id="saveBanner" hidden>Save your recovery link</button>
   <div class="vf">
     <div class="frame" id="frame">
@@ -88,6 +88,7 @@
     </div>
   </div>
   <p class="hint">On iPhone, pick "Save Image" in the menu to put it in your camera roll.</p>
+  <button class="postbtn" id="postBtn" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg><span>Post to a group</span></button>
   <div class="btns">
     <button class="again" id="again">Retake</button>
     <button class="save" id="save">Save to camera roll</button>
@@ -131,11 +132,61 @@
     <button class="plain" id="closeRec">Close</button>
   </div>
 </section>
+<!-- Friend groups -->
+<section class="sheet" id="grpSheet" hidden aria-label="Friend groups">
+  <div class="panel">
+    <h3>Friend groups</h3>
+    <p class="sub">Share photos with up to 9 friends. Join with a friend's code, or make your own group.</p>
+    <ul class="glist" id="grpList"></ul>
+    <button class="full red" id="jcBtn">Join or create a group</button>
+    <button class="plain" id="grpClose">Close</button>
+  </div>
+</section>
+<section class="sheet" id="jcSheet" hidden aria-label="Join or create a group">
+  <div class="panel">
+    <h3>Join a group</h3>
+    <input id="codeIn" maxlength="6" placeholder="Friend code" autocomplete="off" autocapitalize="characters" aria-label="Friend code">
+    <button class="full blue" id="joinBtn">Join group</button>
+    <h3>Or create one</h3>
+    <input id="gname" maxlength="30" placeholder="Group name" autocomplete="off" aria-label="Group name">
+    <button class="full red" id="makeBtn">Create group</button>
+    <p class="err" id="jcErr"></p>
+    <button class="plain" id="jcClose">Back</button>
+  </div>
+</section>
+<section class="sheet" id="rollSheet" hidden aria-label="Group film roll">
+  <div class="panel tall">
+    <h3 id="rollName">Group</h3>
+    <div class="invite"><span class="codechip" id="rollCode"></span><button class="mini2 blue" id="copyCode">Copy link</button><button class="mini2 blue" id="shareCode">Invite</button></div>
+    <div class="grid" id="grid"></div>
+    <p class="sub" id="rollEmpty" hidden>No photos yet. Take one and tap "Post to a group."</p>
+    <button class="plain" id="leaveBtn">Leave group</button>
+    <button class="plain" id="rollClose">Close</button>
+  </div>
+</section>
+<section class="sheet" id="viewSheet" hidden aria-label="Photo">
+  <div class="panel">
+    <img id="viewImg" class="viewimg" alt="">
+    <p class="sub" id="viewMeta"></p>
+    <div id="viewSong"></div>
+    <button class="plain" id="delPost" hidden>Delete this photo</button>
+    <button class="plain" id="viewClose">Close</button>
+  </div>
+</section>
+<section class="sheet" id="postSheet" hidden aria-label="Post to a group">
+  <div class="panel">
+    <h3>Post to a group</h3>
+    <p class="sub" id="postSub">Pick a group. Everyone in it will see this photo.</p>
+    <ul class="glist" id="postList"></ul>
+    <button class="plain" id="postClose">Cancel</button>
+  </div>
+</section>
 <div class="toast" id="toast" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
-<script src="app.js?v=14"></script>
-<script src="accounts.js?v=14"></script>
+<script src="app.js?v=15"></script>
+<script src="accounts.js?v=15"></script>
+<script src="groups.js?v=15"></script>
 </body>
 </html>
