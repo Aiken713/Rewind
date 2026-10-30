@@ -117,6 +117,8 @@
   const stopView = () => { if (viewAudio){ viewAudio.pause(); viewAudio = null; } };
   async function openPhoto(r){
     $('viewImg').removeAttribute('src'); say('viewName', r.nickname || '');
+    const cap = $('viewCap'); cap.replaceChildren(); cap.hidden = !r.caption;
+    if (r.caption){ const nm = document.createElement('b'); nm.textContent = r.nickname || ''; cap.append(nm, ' ' + r.caption); }
     say('viewMeta', r.nickname + '#' + r.tag + ' · ' + new Date(r.created_at).toLocaleDateString(undefined, { month:'short', day:'numeric' }));
     $('viewSong').replaceChildren(); $('delPost').hidden = !r.mine; open('viewSheet');
     if (r.song_title){
@@ -168,6 +170,7 @@
     renderList('postList', doPost); say('postSub', 'Pick a group. Everyone in it will see this photo.'); open('postSheet');
   };
   $('postClose').onclick = () => shut('postSheet');
+  $('again').addEventListener('click', () => { $('caption').value = ''; });   // a new photo starts with a blank caption
   async function doPost(g){
     if (posting || !lastBlob) return;
     posting = true; say('postSub', 'Posting…');
@@ -181,7 +184,8 @@
       if (r.error){ await sb.storage.from(B).remove([p1]); throw r.error; }
       const sg = song || {};
       const { error } = await sb.rpc('create_post', { p_group: g.id, p_image: p1, p_thumb: p2, p_title: sg.title || null,
-        p_artist: sg.artist || null, p_art: sg.art || null, p_preview: sg.preview || null, p_link: sg.link || null });
+        p_artist: sg.artist || null, p_art: sg.art || null, p_preview: sg.preview || null, p_link: sg.link || null,
+        p_caption: $('caption').value.trim() || null });
       if (error){ await sb.storage.from(B).remove([p1, p2]); throw error; }
       shut('postSheet'); toast('Posted to ' + g.name); $('again').click();
     }catch(e){ console.warn(e); say('postSub', nice(e)); }
@@ -221,7 +225,7 @@
     history.replaceState(null, '', location.pathname + location.search);
   }
   async function ready(){
-    $('grpBtn').hidden = false; $('postBtn').hidden = false;
+    $('grpBtn').hidden = false; $('postBtn').hidden = false; $('caption').hidden = false;
     let code = null; try{ code = sessionStorage.getItem(PENDING); sessionStorage.removeItem(PENDING); }catch(e){}
     if (!code) return;
     const r = await joinCode(code);

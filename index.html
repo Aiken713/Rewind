@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:opsz,wght@9..144,700&family=VT323&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=17">
+<link rel="stylesheet" href="style.css?v=18">
 </head>
 <body>
 
@@ -54,7 +54,7 @@
 
 <!-- Camera -->
 <main id="app">
-  <header><h2>Rewind</h2><div class="hr"><button class="acct" id="grpBtn" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.6"/><path d="M16 14.2c3 .1 5 2.3 5 5.8"/></svg> Groups</button><button class="acct" id="acct" hidden></button></div><span id="ver">Free retro cameras · page v3.2</span></header>
+  <header><h2>Rewind</h2><div class="hr"><button class="acct" id="grpBtn" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.6"/><path d="M16 14.2c3 .1 5 2.3 5 5.8"/></svg> Groups</button><button class="acct" id="acct" hidden></button></div><span id="ver">Free retro cameras · page v3.3</span></header>
   <button class="banner" id="saveBanner" hidden>Save your recovery link</button>
   <div class="vf">
     <div class="frame" id="frame">
@@ -88,6 +88,7 @@
     </div>
   </div>
   <p class="hint">On iPhone, pick "Save Image" in the menu to put it in your camera roll.</p>
+  <input class="capin" id="caption" maxlength="150" placeholder="Write a caption..." autocomplete="off" aria-label="Caption" hidden>
   <button class="postbtn" id="postBtn" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg><span>Post to a group</span></button>
   <div class="btns">
     <button class="again" id="again">Retake</button>
@@ -169,6 +170,7 @@
 <section class="sheet" id="viewSheet" hidden aria-label="Photo">
   <div class="panel">
     <div class="viewwrap"><img id="viewImg" class="viewimg" alt=""><span class="who big" id="viewName"></span></div>
+    <p class="caption" id="viewCap" hidden></p>
     <p class="sub" id="viewMeta"></p>
     <div id="viewSong"></div>
     <button class="plain" id="delPost" hidden>Delete this photo</button>
@@ -196,8 +198,8 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
-<script src="app.js?v=17"></script>
-<script src="accounts.js?v=17"></script>
-<script src="groups.js?v=17"></script>
+<script src="app.js?v=18"></script>
+<script src="accounts.js?v=18"></script>
+<script src="groups.js?v=18"></script>
 </body>
 </html>

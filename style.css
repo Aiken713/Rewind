@@ -189,3 +189,9 @@ header{flex-wrap:wrap;align-items:center}
 .viewwrap .viewimg{margin-bottom:0}
 
 .plain.danger{color:var(--red)}
+
+/* ---------- Captions ---------- */
+.capin{width:100%;max-width:520px;padding:12px 14px;border-radius:14px;border:3px solid var(--maroon);background:var(--paper);color:var(--maroon);
+  font:inherit;font-size:1rem;margin-bottom:12px;-webkit-user-select:text;user-select:text}
+.caption{margin:0 0 10px;line-height:1.4;font-size:1rem;color:var(--ink);overflow-wrap:anywhere}
+.caption b{margin-right:2px}
