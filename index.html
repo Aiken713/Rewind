@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:opsz,wght@9..144,700&family=VT323&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=21">
+<link rel="stylesheet" href="style.css?v=23">
 </head>
 <body>
 
@@ -54,7 +54,7 @@
 
 <!-- Camera -->
 <main id="app">
-  <header><h2>Rewind</h2><div class="hr"><button class="acct" id="grpBtn" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.6"/><path d="M16 14.2c3 .1 5 2.3 5 5.8"/></svg> Groups</button><button class="acct" id="acct" hidden></button></div><span id="ver">Free retro cameras · page v5.0</span></header>
+  <header><h2>Rewind</h2><div class="hr"><button class="acct iconly" id="feedBtn" hidden aria-label="Public feed"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg></button><button class="acct" id="grpBtn" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.6"/><path d="M16 14.2c3 .1 5 2.3 5 5.8"/></svg> Groups</button><button class="acct" id="acct" hidden></button></div><span id="ver">Free retro cameras · page v6.1</span></header>
   <button class="banner" id="saveBanner" hidden>Save your recovery link</button>
   <div class="daily" id="daily"><div><b>Today's prompt</b><span id="dailyPrompt"></span></div><div><b>Camera of the day</b><span id="dailyCam"></span></div></div>
   <div class="vf">
@@ -94,7 +94,7 @@
   <p class="hint">On iPhone, pick "Save Image" in the menu to put it in your camera roll.</p>
   <label class="tagrow" id="tagrow" hidden><input type="checkbox" id="forPrompt"><span>This answers today's prompt</span></label>
   <input class="capin" id="caption" maxlength="150" placeholder="Write a caption..." autocomplete="off" aria-label="Caption" hidden>
-  <button class="postbtn" id="postBtn" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg><span>Post to a group</span></button>
+  <button class="postbtn" id="postBtn" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg><span>Post</span></button>
   <div class="btns">
     <button class="again" id="again">Retake</button>
     <button class="save" id="save">Save to camera roll</button>
@@ -167,7 +167,7 @@
     <div class="invite"><span class="codechip" id="rollCode"></span><button class="mini2 blue" id="copyCode">Copy link</button><button class="mini2 blue" id="shareCode">Invite</button></div>
     <div class="members" id="members"></div>
     <div class="grid" id="grid"></div>
-    <p class="sub" id="rollEmpty" hidden>No photos yet. Take one and tap "Post to a group."</p>
+    <p class="sub" id="rollEmpty" hidden>No photos yet. Take one and tap "Post."</p>
     <button class="full blue" id="albumBtn">Make a monthly album</button>
     <button class="plain" id="leaveBtn">Leave group</button>
     <button class="plain" id="rollClose">Close</button>
@@ -187,7 +187,7 @@
 </section>
 <section class="sheet" id="postSheet" hidden aria-label="Post to a group">
   <div class="panel">
-    <h3>Post to a group</h3>
+    <h3>Where to post?</h3>
     <p class="sub" id="postSub">Pick a group. Everyone in it will see this photo.</p>
     <ul class="glist" id="postList"></ul>
     <button class="plain" id="postClose">Cancel</button>
@@ -212,14 +212,33 @@
     <button class="plain" id="albumClose">Close</button>
   </div>
 </section>
+<!-- Public feed -->
+<section class="sheet" id="feedSheet" hidden aria-label="Public feed">
+  <div class="panel tall feedpanel">
+    <div class="feedhead">
+      <h3>Public feed</h3>
+      <div class="fh"><button class="mini" id="feedSound" aria-label="Sound on" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/></svg></button><button class="mini" id="feedClose" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    </div>
+    <div class="feedscroll" id="feedScroll">
+      <div id="feedGate" hidden>
+        <p class="sub">Post one photo today to peek. Share a photo to a group or the public feed and the feed unlocks.</p>
+        <button class="full red" id="feedTake">Take a photo</button>
+      </div>
+      <p class="sub" id="feedMsg" hidden>No public photos yet. Be the first to post one.</p>
+      <div id="feedList"></div>
+      <p class="sub endnote" id="feedEnd" hidden>You're all caught up. Come back tomorrow.</p>
+    </div>
+  </div>
+</section>
 <div class="toast" id="toast" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
-<script src="app.js?v=21"></script>
-<script src="daily.js?v=21"></script>
-<script src="video.js?v=21"></script>
-<script src="accounts.js?v=21"></script>
-<script src="groups.js?v=21"></script>
+<script src="app.js?v=23"></script>
+<script src="daily.js?v=23"></script>
+<script src="video.js?v=23"></script>
+<script src="accounts.js?v=23"></script>
+<script src="groups.js?v=23"></script>
+<script src="feed.js?v=23"></script>
 </body>
 </html>

@@ -183,8 +183,12 @@
   }
   $('postBtn').onclick = async () => {
     await loadGroups();
-    if (!groups.length){ toast('Join or create a group first.'); say('jcErr', ''); open('jcSheet'); return; }
-    renderList('postList', doPost); say('postSub', 'Pick a group. Everyone in it will see this photo.'); open('postSheet');
+    renderList('postList', doPost);
+    const li = document.createElement('li'), b = document.createElement('button');
+    const n = document.createElement('b'); n.textContent = 'Public feed';
+    const s = document.createElement('span'); s.textContent = 'Everyone on Rewind';
+    b.append(n, s); b.onclick = () => window.rewindPostPublic && window.rewindPostPublic(); li.appendChild(b); $('postList').prepend(li);
+    say('postSub', 'Pick where to post. Everyone there will see this photo.'); open('postSheet');
   };
   $('postClose').onclick = () => shut('postSheet');
   $('again').addEventListener('click', () => { $('caption').value = ''; $('forPrompt').checked = false; });   // a new photo starts with a blank caption
@@ -293,6 +297,8 @@
       location.reload();
     }catch(e){ console.warn(e); say('delMsg', 'Could not delete your account. Try again.'); btn.disabled = false; }
   };
+
+  window.rewindShrink = shrink; window.rewindSaveBlob = saveBlob; window.rewindRemoveAll = removeAll;   // shared with feed.js
 
   /* ----- invite links and start up ----- */
   const m = location.hash.match(/join=([A-Za-z0-9]{6})/);
