@@ -154,7 +154,7 @@
   async function loadFeed(){
     if (imgIO) imgIO.disconnect(); if (viewIO) viewIO.disconnect(); stopCard(); active = null;
     $('feedList').replaceChildren(); ['feedMsg', 'feedEnd', 'feedGate'].forEach(i => { $(i).hidden = true; });
-    $('feedScroll').scrollTop = 0;
+    sizeCards(); $('feedScroll').scrollTop = 0;
     imgIO = new IntersectionObserver(es => es.forEach(e => {
       if (!e.isIntersecting) return;
       const im = e.target; if (im.dataset.full) im.src = im.dataset.full; imgIO.unobserve(im);       // swap in the sharp photo as it nears the screen
@@ -181,9 +181,14 @@
     $('feedList').replaceChildren(...rows.map(r => buildCard(r, thumbs, fulls).el));
     $('feedEnd').hidden = false;                         // the feed has an end on purpose
   }
+  function sizeCards(){                                  // each post is as tall as the feed window
+    const h = $('feedScroll').clientHeight;
+    if (h) $('feedList').style.setProperty('--ph', h + 'px');
+  }
+  window.addEventListener('resize', sizeCards);
   $('feedBtn').onclick = () => {
     try{ ax.src = SILENT; ax.play().catch(() => {}); }catch(e){}     // a tap unlocks sound, so songs can start by themselves later
-    drawSound(); open('feedSheet'); loadFeed();
+    drawSound(); open('feedSheet'); sizeCards(); loadFeed();
   };
   $('feedClose').onclick = () => { stopCard(); shut('feedSheet'); };
   $('feedTake').onclick = () => { stopCard(); shut('feedSheet'); toast('Take a photo and post it to unlock the feed.'); };

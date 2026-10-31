@@ -371,7 +371,7 @@ $('again').onclick = () => { clearSong(); retake(); };
 
 
 // Version stamp so you can see which files your phone loaded
-$('ver').textContent += ' · script v6.1';
+$('ver').textContent += ' · script v6.2';
 
 
 /* ===== Button press animation (works on phones) + shutter flash ===== */

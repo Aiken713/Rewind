@@ -257,3 +257,15 @@ header{flex-wrap:wrap;align-items:center}
 .fbody{padding:6px 14px 14px}
 .fcap{margin:0 0 6px;line-height:1.4;overflow-wrap:anywhere}
 .fbody .songchip{margin-top:8px}
+
+/* ---------- Version 6.2: Reels-style snapping ---------- */
+#feedSheet{align-items:stretch}
+#feedSheet .panel{max-width:520px;height:100%;max-height:100%;border-radius:0;box-shadow:none;padding-top:calc(14px + env(safe-area-inset-top,0))}
+.feedscroll{scroll-snap-type:y mandatory;padding:0;margin:0}
+#feedList{--ph:560px}
+.fcard{height:var(--ph);display:flex;flex-direction:column;margin:0;border:0;border-radius:0;border-bottom:3px solid var(--tan);
+  scroll-snap-align:start;scroll-snap-stop:always}
+.fphoto{flex:1;min-height:0}
+.fphoto img{height:100%;object-fit:contain}
+.fcap{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+#feedEnd{height:var(--ph,300px);display:flex;align-items:center;justify-content:center;text-align:center;margin:0;scroll-snap-align:start}
