@@ -8,6 +8,7 @@
   const say = (id, t) => { $(id).textContent = t; };
   const svg = p => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + p + '</svg>';
   const ICON = {
+    mail: svg('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>'),
     save: svg('<path d="M12 4v11M7 11l5 5 5-5"/><path d="M5 20h14"/>'),
     flag: svg('<path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/>'),
     trash: svg('<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>'),
@@ -114,6 +115,9 @@
       });
       acts.appendChild(del);
     } else {
+      const mail = el('button', 'ico'); mail.innerHTML = ICON.mail; mail.setAttribute('aria-label', 'Send a postcard'); mail.title = 'Send a postcard';
+      mail.onclick = () => window.openPostcard && window.openPostcard({ kind: 'public', id: r.id, name: r.nickname });
+      acts.appendChild(mail);
       const rep = el('button', 'ico'); rep.innerHTML = ICON.flag; rep.setAttribute('aria-label', 'Report this photo'); rep.title = 'Report';
       twoTap(rep, 'report', async () => {
         const { error } = await sb.rpc('report_post', { p_post: r.id, p_reason: 'reported' });

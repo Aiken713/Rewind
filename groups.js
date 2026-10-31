@@ -158,6 +158,8 @@
       await sb.storage.from(B).remove([r.image_path, r.thumb_path]);
       stopView(); shut('viewSheet'); toast('Deleted'); openRoll(current);
     };
+    $('sendCard').hidden = !!r.mine;
+    $('sendCard').onclick = () => window.openPostcard && window.openPostcard({ kind: 'group', id: r.id, name: r.nickname });
     $('savePhoto').onclick = async () => {                    // photos disappear, so make saving easy
       const { data: blob, error } = await sb.storage.from(B).download(r.image_path);
       if (error || !blob) return toast('Could not save this photo.');
